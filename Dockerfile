@@ -7,7 +7,9 @@ RUN bash nodesource_setup.sh
 RUN apt-get install -y nodejs
 
 RUN adduser rdamn
+USER rdamn
 RUN mkdir /home/rdamn/code
+USER root
 
 WORKDIR /root/rdamn
 
@@ -23,5 +25,8 @@ ENV CommunicationPort=1234
 ENV PreviewPort=1337
 ENV PreviewPort2=1338
 EXPOSE 1234 1337 1338
+
+RUN id -u rdamn > /root/rdamn/.uid
+RUN id -g rdamn > /root/rdamn/.gid
 
 CMD npm start
