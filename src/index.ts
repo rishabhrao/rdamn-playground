@@ -28,6 +28,26 @@ server.get("/filewatch", { websocket: true }, connection => fileWatchHandler(ser
 
 server.get("/terminal", { websocket: true }, connection => terminalHandler(server, connection))
 
+const ServerTTL: number = 15 * 1000 // 15 Seconds
+let lastConnectedTime: number = Date.now()
+
+server.get("/ttl", { websocket: true }, connection => {
+	lastConnectedTime = Date.now()
+
+	connection.socket.on("message", message => {
+		if (message.toString() === "ping") {
+			lastConnectedTime = Date.now()
+		}
+	})
+})
+
+setInterval(() => {
+	if (Date.now() > lastConnectedTime + ServerTTL) {
+		void server.close()
+		throw new Error(`No connection since last ${ServerTTL / 1000} seconds. Shutting down...`)
+	}
+}, ServerTTL)
+
 const CommunicationPort: number = parseInt(process.env.CommunicationPort || "1234")
 
 server.listen(CommunicationPort, process.env.NODE_ENV === "development" ? "127.0.0.1" : "0.0.0.0", error => {
