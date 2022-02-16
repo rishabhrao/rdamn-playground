@@ -77,9 +77,10 @@ const terminalHandler: (server: FastifyInstance, connection: SocketStream) => vo
 			uid: process.env.NODE_ENV === "development" ? undefined : parseInt(readFileSync("/root/rdamn/.uid", "utf-8")),
 			gid: process.env.NODE_ENV === "development" ? undefined : parseInt(readFileSync("/root/rdamn/.gid", "utf-8")),
 			env: {
-				CommunicationPort: `1234`,
-				PreviewPort: `1337`,
-				PreviewPort2: `1338`,
+				CommunicationPort: process.env.CommunicationPort || `1234`,
+				PreviewPort: process.env.PreviewPort || `1337`,
+				PreviewPort2: process.env.PreviewPort2 || `1338`,
+				HOSTNAME: process.env.HOSTNAME || `rdamn`,
 				SHELL: `/bin/bash`,
 				PWD: `/home/rdamn`,
 				LOGNAME: `rdamn`,
@@ -102,7 +103,7 @@ const terminalHandler: (server: FastifyInstance, connection: SocketStream) => vo
 
 		sendMessageToClient({ ptyOut: `${BgWhite}${bright}${red}Connected! Welcome to rdamn!${reset}${EOL}${EOL}` })
 
-		sendMessageToClient({ ptyOut: `${bright}${green}rdamn@rdamn${reset}:${bright}${blue}~/code${reset}$ ` })
+		sendMessageToClient({ ptyOut: `${bright}${green}rdamn@${process.env.HOSTNAME || `rdamn`}${reset}:${bright}${blue}~/code${reset}$ ` })
 
 		setTimeout(() => {
 			pty.onData(data => {

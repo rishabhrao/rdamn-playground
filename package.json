@@ -9,7 +9,7 @@
 		"start": "node ./build",
 		"dev": "nodemon | pino-pretty --colorize",
 		"dev:buildDocker": "docker build -t rdamn-playground . && docker rm -f $(docker ps -aq)",
-		"dev:startDocker": "docker run -p 1234:1234 -p 1337:1337 -p 1338:1338 -h rdamn rdamn-playground"
+		"dev:startDocker": "docker run -p 1234:1234 -p 1337:1337 -p 1338:1338 rdamn-playground"
 	},
 	"dependencies": {
 		"ajv": "^8.10.0",
