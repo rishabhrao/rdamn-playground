@@ -29,4 +29,6 @@ EXPOSE 1234 1337 1338
 RUN id -u rdamn > /root/rdamn/.uid
 RUN id -g rdamn > /root/rdamn/.gid
 
+ENV CHOKIDAR_USEPOLLING=1
+
 CMD npm start

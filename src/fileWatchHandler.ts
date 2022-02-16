@@ -28,8 +28,11 @@ const fileWatchHandler: (server: FastifyInstance, connection: SocketStream) => v
 			connection.socket.send(serializeFileWatchServerToClientEvent(message))
 		}
 
+		const ignoredDirs = ["node_modules", ".git"]
+
 		chokidarWatch("/home/rdamn/code", {
 			ignoreInitial: true,
+			ignored: filePath => ignoredDirs.some(ignoredDir => filePath.includes(ignoredDir)),
 		}).on("all", (event, path) => {
 			sendMessageToClient({ event, path })
 		})
