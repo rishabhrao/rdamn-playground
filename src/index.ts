@@ -28,7 +28,7 @@ server.get("/filewatch", { websocket: true }, connection => fileWatchHandler(ser
 
 server.get("/terminal", { websocket: true }, connection => terminalHandler(server, connection))
 
-const ServerTTL: number = 15 * 1000 // 15 Seconds
+const ServerTTL: number = process.env.NODE_ENV === "development" ? Math.pow(2, 31) - 1 : 15 * 1000 // 15 Seconds
 let lastConnectedTime: number = Date.now()
 
 server.get("/ttl", { websocket: true }, connection => {
