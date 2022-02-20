@@ -8,6 +8,8 @@ import type { FastifyInstance } from "fastify"
 import type { SocketStream } from "fastify-websocket"
 import { IPty, spawn as spawnNodePty } from "node-pty"
 
+import { CommunicationPort, HOSTNAME, NODE_ENV, PreviewPort, PreviewPort2 } from "../constants"
+
 // Refer https://gist.github.com/abritinthebay/d80eb99b2726c83feb0d97eab95206c4
 const reset = "\x1b[0m"
 const bright = "\x1b[1m"
@@ -74,13 +76,13 @@ const terminalHandler: (server: FastifyInstance, connection: SocketStream) => vo
 		const pty: IPty = spawnNodePty("bash", [], {
 			name: "xterm-color",
 			cwd: "/home/rdamn/code",
-			uid: process.env.NODE_ENV === "development" ? undefined : parseInt(readFileSync("/root/rdamn/.uid", "utf-8")),
-			gid: process.env.NODE_ENV === "development" ? undefined : parseInt(readFileSync("/root/rdamn/.gid", "utf-8")),
+			uid: NODE_ENV === "development" ? undefined : parseInt(readFileSync("/root/rdamn/.uid", "utf-8")),
+			gid: NODE_ENV === "development" ? undefined : parseInt(readFileSync("/root/rdamn/.gid", "utf-8")),
 			env: {
-				CommunicationPort: process.env.CommunicationPort || `1234`,
-				PreviewPort: process.env.PreviewPort || `1337`,
-				PreviewPort2: process.env.PreviewPort2 || `1338`,
-				HOSTNAME: process.env.HOSTNAME || `rdamn`,
+				CommunicationPort: CommunicationPort,
+				PreviewPort: PreviewPort,
+				PreviewPort2: PreviewPort2,
+				HOSTNAME: HOSTNAME,
 				SHELL: `/bin/bash`,
 				PWD: `/home/rdamn`,
 				LOGNAME: `rdamn`,
@@ -103,7 +105,7 @@ const terminalHandler: (server: FastifyInstance, connection: SocketStream) => vo
 
 		sendMessageToClient({ ptyOut: `${BgWhite}${bright}${red}Connected! Welcome to rdamn!${reset}${EOL}${EOL}` })
 
-		sendMessageToClient({ ptyOut: `${bright}${green}rdamn@${process.env.HOSTNAME || `rdamn`}${reset}:${bright}${blue}~/code${reset}$ ` })
+		sendMessageToClient({ ptyOut: `${bright}${green}rdamn@${HOSTNAME}${reset}:${bright}${blue}~/code${reset}$ ` })
 
 		setTimeout(() => {
 			pty.onData(data => {

@@ -209,9 +209,9 @@ const crudHandler: (server: FastifyInstance, connection: SocketStream) => void =
 
 						sendMessageToClient({
 							command: "readFolder",
-							folderPath: tree.path,
-							folderName: tree.name,
-							folderContents: (tree.children || [])?.map(({ type, path, name }) => ({ type, path, name })),
+							folderPath: tree?.path,
+							folderName: tree?.name,
+							folderContents: (tree?.children || [])?.map(({ type, path, name }) => ({ type, path, name })),
 						})
 
 						break
