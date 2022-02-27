@@ -17,3 +17,6 @@ npm-debug.log*
 
 # typescript
 *.tsbuildinfo
+
+# SSL Files
+*.pem

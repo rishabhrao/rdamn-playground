@@ -1,5 +1,8 @@
 /* Copyright (c) rishabhrao (https://github.com/rishabhrao) */
 
+import { readFileSync } from "fs"
+import path from "path"
+
 import fastify, { FastifyInstance } from "fastify"
 import fastifyCors from "fastify-cors"
 import fastifyWebsocket from "fastify-websocket"
@@ -15,6 +18,10 @@ getFromS3()
 
 const server: FastifyInstance = fastify({
 	logger: { level: "error" },
+	https: {
+		cert: NODE_ENV === "development" ? undefined : readFileSync(path.join(__dirname, "../SSL_CERT.pem")),
+		key: NODE_ENV === "development" ? undefined : readFileSync(path.join(__dirname, "../SSL_KEY.pem")),
+	},
 })
 
 void server.register(fastifyCors, {
