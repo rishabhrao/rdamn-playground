@@ -78,7 +78,7 @@ setInterval(() => {
 }, ServerTTL)
 
 // Listen for connections on `CommunicationPort`
-server.listen(CommunicationPort, NODE_ENV === "development" ? "127.0.0.1" : "0.0.0.0", error => {
+server.listen(CommunicationPort, "0.0.0.0", error => {
 	if (error) {
 		server.log.error(error?.message)
 	}
