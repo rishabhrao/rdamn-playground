@@ -105,7 +105,7 @@ const terminalHandler: (server: FastifyInstance, connection: SocketStream) => vo
 
 		sendMessageToClient({ ptyOut: `${BgWhite}${bright}${red}Connected! Welcome to rdamn!${reset}${EOL}${EOL}` })
 
-		sendMessageToClient({ ptyOut: `${bright}${green}rdamn@${HOSTNAME}${reset}:${bright}${blue}~/code${reset}$ ` })
+		sendMessageToClient({ ptyOut: `${bright}${green}rdamn@${HOSTNAME.split(".")[0]}${reset}:${bright}${blue}~/code${reset}$ ` })
 
 		setTimeout(() => {
 			pty.onData(data => {
