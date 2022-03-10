@@ -5,8 +5,8 @@ import envSchema from "env-schema"
 
 type EnvConfigType = {
 	NODE_ENV?: "development"
-	SIGNED_GET_URL: string
-	SIGNED_PUT_URL: string
+	SIGNED_GET_URL?: string
+	SIGNED_PUT_URL?: string
 	HOSTNAME: string
 	CommunicationPort: string
 	PreviewPort: string
@@ -17,14 +17,14 @@ const EnvConfigSchema: JSONSchemaType<EnvConfigType> = {
 	type: "object",
 	properties: {
 		NODE_ENV: { type: "string", pattern: "^(development)$", nullable: true },
-		SIGNED_GET_URL: { type: "string", minLength: 1 },
-		SIGNED_PUT_URL: { type: "string", minLength: 1 },
+		SIGNED_GET_URL: { type: "string", minLength: 1, nullable: true },
+		SIGNED_PUT_URL: { type: "string", minLength: 1, nullable: true },
 		HOSTNAME: { type: "string", minLength: 1, default: `rdamn` },
 		CommunicationPort: { type: "string", minLength: 1, default: `1234` },
 		PreviewPort: { type: "string", minLength: 1, default: `1337` },
 		PreviewPort2: { type: "string", minLength: 1, default: `1338` },
 	},
-	required: ["SIGNED_GET_URL", "SIGNED_PUT_URL", "HOSTNAME", "CommunicationPort", "PreviewPort", "PreviewPort2"],
+	required: ["HOSTNAME", "CommunicationPort", "PreviewPort", "PreviewPort2"],
 	additionalProperties: false,
 }
 

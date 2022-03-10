@@ -26,7 +26,7 @@ const saveToS3: () => Promise<void> = async () => {
 	// Create zip file with new code and store it as `code.zip`
 	execSync(`cd /home/rdamn && zip -r -9 ./code.zip ./rdamn-template-saved -x ${ignoredDirs.map(dir => `*${dir}*`).join(" ")}`)
 
-	const s3PutResponse = await fetch(SIGNED_PUT_URL, {
+	const s3PutResponse = await fetch(SIGNED_PUT_URL || "", {
 		method: "PUT",
 		headers: {
 			"Content-Type": "application/zip",

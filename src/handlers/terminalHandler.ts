@@ -1,6 +1,7 @@
 /* Copyright (c) rishabhrao (https://github.com/rishabhrao) */
 
-import { readFileSync } from "fs"
+import { execSync } from "child_process"
+import { existsSync, readFileSync } from "fs"
 import { EOL } from "os"
 
 import AjvJtd, { JTDParser, JTDSchemaType } from "ajv/dist/jtd"
@@ -8,7 +9,7 @@ import type { FastifyInstance } from "fastify"
 import type { SocketStream } from "fastify-websocket"
 import { IPty, spawn as spawnNodePty } from "node-pty"
 
-import { CommunicationPort, HOSTNAME, NODE_ENV, PreviewPort, PreviewPort2 } from "../constants"
+import { CommunicationPort, HOSTNAME, PreviewPort, PreviewPort2 } from "../constants"
 
 // Refer https://gist.github.com/abritinthebay/d80eb99b2726c83feb0d97eab95206c4
 const reset = "\x1b[0m"
@@ -76,8 +77,8 @@ const terminalHandler: (server: FastifyInstance, connection: SocketStream) => vo
 		const pty: IPty = spawnNodePty("bash", [], {
 			name: "xterm-color",
 			cwd: "/home/rdamn/code",
-			uid: NODE_ENV === "development" ? undefined : parseInt(readFileSync("/root/rdamn/.uid", "utf-8")),
-			gid: NODE_ENV === "development" ? undefined : parseInt(readFileSync("/root/rdamn/.gid", "utf-8")),
+			uid: existsSync(`/root/rdamn/.uid`) ? parseInt(readFileSync("/root/rdamn/.uid", "utf-8")) : parseInt(execSync(`id -u`).toString()),
+			gid: existsSync(`/root/rdamn/.gid`) ? parseInt(readFileSync("/root/rdamn/.gid", "utf-8")) : parseInt(execSync(`id -g`).toString()),
 			env: {
 				CommunicationPort: CommunicationPort,
 				PreviewPort: PreviewPort,

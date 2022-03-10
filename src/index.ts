@@ -16,13 +16,18 @@ import saveToS3 from "./s3Helpers/saveToS3"
 
 getFromS3()
 
-const server: FastifyInstance = fastify({
+const serverOptions = {
 	logger: { level: "error" },
-	https: {
-		cert: NODE_ENV === "development" ? undefined : readFileSync(path.join(__dirname, "../SSL_CERT.pem")),
-		key: NODE_ENV === "development" ? undefined : readFileSync(path.join(__dirname, "../SSL_KEY.pem")),
-	},
-})
+	https:
+		NODE_ENV === "development"
+			? undefined
+			: {
+					cert: readFileSync(path.join(__dirname, "../SSL_CERT.pem")),
+					key: readFileSync(path.join(__dirname, "../SSL_KEY.pem")),
+			  },
+}
+
+const server: FastifyInstance = fastify(serverOptions)
 
 void server.register(fastifyCors, {
 	origin: "*",
@@ -71,7 +76,13 @@ setInterval(() => {
 	// Save data to s3 and shutdown server if no connection
 	if (Date.now() > lastConnectedTime + ServerTTL) {
 		void server.close()
-		void saveToS3().then(() => {
+		void (() => {
+			if (NODE_ENV === "development") {
+				return Promise.resolve()
+			}
+
+			return saveToS3()
+		})().then(() => {
 			throw new Error(`No connection since last ${ServerTTL / 1000} seconds. Shutting down...`)
 		})
 	}
