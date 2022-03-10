@@ -5,6 +5,7 @@ import { existsSync, readFileSync } from "fs"
 import { EOL } from "os"
 
 import AjvJtd, { JTDParser, JTDSchemaType } from "ajv/dist/jtd"
+import ConfigParser from "configparser"
 import type { FastifyInstance } from "fastify"
 import type { SocketStream } from "fastify-websocket"
 import { IPty, spawn as spawnNodePty } from "node-pty"
@@ -42,15 +43,38 @@ const rdamnLogo = `
 
 const ajvJtd: AjvJtd = new AjvJtd()
 
-type TerminalClientToServerEventType = {
+type PtyInTerminalClientToServerEventType = {
+	type: "ptyIn"
 	ptyIn: string
 }
 
-const TerminalClientToServerEventSchema: JTDSchemaType<TerminalClientToServerEventType> = {
+const PtyInTerminalClientToServerEventSchema: JTDSchemaType<Omit<PtyInTerminalClientToServerEventType, "type">> = {
 	properties: {
 		ptyIn: { type: "string" },
 	},
 	additionalProperties: false,
+}
+
+type StartPreviewTerminalClientToServerEventType = {
+	type: "startPreview"
+	shouldStartPreview: boolean
+}
+
+const StartPreviewTerminalClientToServerEventSchema: JTDSchemaType<Omit<StartPreviewTerminalClientToServerEventType, "type">> = {
+	properties: {
+		shouldStartPreview: { type: "boolean" },
+	},
+	additionalProperties: false,
+}
+
+type TerminalClientToServerEventType = PtyInTerminalClientToServerEventType | StartPreviewTerminalClientToServerEventType
+
+const TerminalClientToServerEventSchema: JTDSchemaType<TerminalClientToServerEventType> = {
+	discriminator: "type",
+	mapping: {
+		ptyIn: PtyInTerminalClientToServerEventSchema,
+		startPreview: StartPreviewTerminalClientToServerEventSchema,
+	},
 }
 
 const parseTerminalClientToServerEvent: JTDParser<TerminalClientToServerEventType> = ajvJtd.compileParser(TerminalClientToServerEventSchema)
@@ -122,7 +146,18 @@ const terminalHandler: (server: FastifyInstance, connection: SocketStream) => vo
 			const parsedMessage = parseTerminalClientToServerEvent(message.toString())
 
 			if (parsedMessage) {
-				pty.write(parsedMessage.ptyIn)
+				if (parsedMessage.type === "ptyIn") {
+					pty.write(parsedMessage.ptyIn)
+				} else if (parsedMessage.type === "startPreview") {
+					try {
+						const rdamnConfigParser = new ConfigParser()
+						rdamnConfigParser.read("/home/rdamn/code/rdamn.cfg")
+
+						pty.write(`${rdamnConfigParser.get("Preview", "startPreviewCommand") || ""}${EOL}`)
+					} catch (error) {
+						server.log.error(error)
+					}
+				}
 			} else {
 				sendMessageToClient({ ptyOut: `${EOL}Invalid Command${EOL}` })
 			}
