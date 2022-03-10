@@ -182,22 +182,34 @@ const crudHandler: (server: FastifyInstance, connection: SocketStream) => void =
 			connection.socket.send(serializeCrudServerToClientEvent(message))
 		}
 
+		const checkIsPathLegal: (path: string) => boolean = (path: string) => {
+			return path.startsWith("/home/rdamn/code") && !path.includes("../") && !path.includes("/root")
+		}
+
 		connection.socket.on("message", message => {
 			const parsedMessage = parseCrudClientToServerEvent(message.toString())
 
 			if (parsedMessage) {
 				switch (parsedMessage.command) {
 					case "createFolder": {
-						spawnChildProcess("mkdir", [parsedMessage.newFolderPath])
+						if (checkIsPathLegal(parsedMessage.newFolderPath)) {
+							spawnChildProcess("mkdir", [parsedMessage.newFolderPath])
+						}
+
 						break
 					}
 					case "createFile": {
-						spawnChildProcess("touch", [parsedMessage.newFilePath])
+						if (checkIsPathLegal(parsedMessage.newFilePath)) {
+							spawnChildProcess("touch", [parsedMessage.newFilePath])
+						}
+
 						break
 					}
 					case "updateFile": {
 						try {
-							writeFileSync(parsedMessage.filePath, parsedMessage.fileContent)
+							if (checkIsPathLegal(parsedMessage.filePath)) {
+								writeFileSync(parsedMessage.filePath, parsedMessage.fileContent)
+							}
 						} catch (error) {
 							server.log.error(error)
 						}
@@ -205,25 +217,29 @@ const crudHandler: (server: FastifyInstance, connection: SocketStream) => void =
 						break
 					}
 					case "readFolder": {
-						const tree = directoryTree(parsedMessage.folderPath, { attributes: ["type"] } as directoryTree.DirectoryTreeOptions)
+						if (checkIsPathLegal(parsedMessage.folderPath)) {
+							const tree = directoryTree(parsedMessage.folderPath, { attributes: ["type"] } as directoryTree.DirectoryTreeOptions)
 
-						sendMessageToClient({
-							command: "readFolder",
-							folderPath: tree?.path,
-							folderName: tree?.name,
-							folderContents: (tree?.children || [])?.map(({ type, path, name }) => ({ type, path, name })),
-						})
+							sendMessageToClient({
+								command: "readFolder",
+								folderPath: tree?.path,
+								folderName: tree?.name,
+								folderContents: (tree?.children || [])?.map(({ type, path, name }) => ({ type, path, name })),
+							})
+						}
 
 						break
 					}
 					case "readFile": {
 						try {
-							const fileContent = readFileSync(parsedMessage.filePath, "utf8")
-							sendMessageToClient({
-								command: "readFile",
-								filePath: parsedMessage.filePath,
-								fileContent: fileContent,
-							})
+							if (checkIsPathLegal(parsedMessage.filePath)) {
+								const fileContent = readFileSync(parsedMessage.filePath, "utf8")
+								sendMessageToClient({
+									command: "readFile",
+									filePath: parsedMessage.filePath,
+									fileContent: fileContent,
+								})
+							}
 						} catch (error) {
 							server.log.error(error)
 						}
@@ -231,11 +247,17 @@ const crudHandler: (server: FastifyInstance, connection: SocketStream) => void =
 						break
 					}
 					case "move": {
-						spawnChildProcess("mv", ["-f", parsedMessage.oldPath, parsedMessage.newPath])
+						if (checkIsPathLegal(parsedMessage.oldPath) && checkIsPathLegal(parsedMessage.newPath)) {
+							spawnChildProcess("mv", ["-f", parsedMessage.oldPath, parsedMessage.newPath])
+						}
+
 						break
 					}
 					case "delete": {
-						spawnChildProcess("rm", ["-rf", parsedMessage.path])
+						if (checkIsPathLegal(parsedMessage.path)) {
+							spawnChildProcess("rm", ["-rf", parsedMessage.path])
+						}
+
 						break
 					}
 				}
