@@ -12,8 +12,8 @@ RUN bash nodesource_setup.sh
 RUN apt-get update -y
 RUN apt-get install -y nodejs
 
-# Install live-server
-RUN npm install -g live-server
+# Install live-server and yarn
+RUN npm install -g live-server yarn
 
 # Copy package.json and its lockfile to /root/rdamn
 COPY package.json package-lock.json /root/rdamn/
