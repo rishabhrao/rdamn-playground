@@ -2,7 +2,7 @@
 
 import { execSync } from "child_process"
 
-import { NODE_ENV, SIGNED_GET_URL } from "../constants"
+import { CodeDir, NODE_ENV, SIGNED_GET_URL, UserDir } from "../constants"
 
 /**
  * A Helper Function to get saved data from s3 by using Signed S3 URLs from env
@@ -11,20 +11,20 @@ import { NODE_ENV, SIGNED_GET_URL } from "../constants"
  */
 const getFromS3: () => void = () => {
 	// Cleanup old data if any and create the `code` folder
-	execSync(`cd /home/rdamn && rm -rf ./code && mkdir ./code && chmod 777 ./code`)
+	execSync(`cd ${UserDir} && rm -rf ./code && mkdir ./code && chmod 777 ./code`)
 
 	if (NODE_ENV !== "development") {
 		// Get saved data from s3 and save it as `code.zip`
-		execSync(`runuser -u rdamn -- wget "${SIGNED_GET_URL || ""}" -O /home/rdamn/code/code.zip`)
+		execSync(`runuser -u rdamn -- wget "${SIGNED_GET_URL || ""}" -O ${CodeDir}/code.zip`)
 
 		// Unzip `code.zip` into the `code` folder
-		execSync(`runuser -u rdamn -- unzip -d /home/rdamn/code /home/rdamn/code/code.zip`)
+		execSync(`runuser -u rdamn -- unzip -d ${CodeDir} ${CodeDir}/code.zip`)
 
 		// Flatten the top folders of the extracted zip file
-		execSync(`runuser -u rdamn -- mv -f /home/rdamn/code/rdamn-template-*/* /home/rdamn/code/`)
+		execSync(`runuser -u rdamn -- mv -f ${CodeDir}/rdamn-template-*/* ${CodeDir}/`)
 
 		// Cleanup downloaded files
-		execSync(`runuser -u rdamn -- rm -rf /home/rdamn/code/code.zip /home/rdamn/code/rdamn-template-*`)
+		execSync(`runuser -u rdamn -- rm -rf ${CodeDir}/code.zip ${CodeDir}/rdamn-template-*`)
 	}
 }
 

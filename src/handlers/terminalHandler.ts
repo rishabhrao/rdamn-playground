@@ -10,7 +10,7 @@ import type { FastifyInstance } from "fastify"
 import type { SocketStream } from "fastify-websocket"
 import { IPty, spawn as spawnNodePty } from "node-pty"
 
-import { CommunicationPort, HOSTNAME, PreviewPort, PreviewPort2 } from "../constants"
+import { CodeDir, CommunicationPort, HOSTNAME, PreviewPort, PreviewPort2, UserDir } from "../constants"
 
 // Refer https://gist.github.com/abritinthebay/d80eb99b2726c83feb0d97eab95206c4
 const reset = "\x1b[0m"
@@ -100,7 +100,7 @@ const terminalHandler: (server: FastifyInstance, connection: SocketStream) => vo
 
 		const pty: IPty = spawnNodePty("bash", [], {
 			name: "xterm-color",
-			cwd: "/home/rdamn/code",
+			cwd: CodeDir,
 			uid: existsSync(`/root/rdamn/.uid`) ? parseInt(readFileSync("/root/rdamn/.uid", "utf-8")) : parseInt(execSync(`id -u`).toString()),
 			gid: existsSync(`/root/rdamn/.gid`) ? parseInt(readFileSync("/root/rdamn/.gid", "utf-8")) : parseInt(execSync(`id -g`).toString()),
 			env: {
@@ -109,9 +109,9 @@ const terminalHandler: (server: FastifyInstance, connection: SocketStream) => vo
 				PreviewPort2: PreviewPort2,
 				HOSTNAME: HOSTNAME,
 				SHELL: `/bin/bash`,
-				PWD: `/home/rdamn`,
+				PWD: UserDir,
 				LOGNAME: `rdamn`,
-				HOME: `/home/rdamn`,
+				HOME: UserDir,
 				TERM: `xterm`,
 				USER: `rdamn`,
 				SHLVL: `2`,
@@ -151,7 +151,7 @@ const terminalHandler: (server: FastifyInstance, connection: SocketStream) => vo
 				} else if (parsedMessage.type === "startPreview") {
 					try {
 						const rdamnConfigParser = new ConfigParser()
-						rdamnConfigParser.read("/home/rdamn/code/rdamn.cfg")
+						rdamnConfigParser.read(`${CodeDir}/rdamn.cfg`)
 
 						pty.write(`${rdamnConfigParser.get("Preview", "startPreviewCommand") || ""}${EOL}`)
 					} catch (error) {

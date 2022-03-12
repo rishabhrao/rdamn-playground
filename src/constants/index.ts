@@ -48,3 +48,6 @@ const envConfig: EnvConfigType = envSchema({
 })
 
 export const { NODE_ENV, SIGNED_GET_URL, SIGNED_PUT_URL, HOSTNAME, CommunicationPort, PreviewPort, PreviewPort2, SSL_CERT_FULLCHAIN, SSL_CERT_PRIVKEY } = envConfig
+
+export const UserDir = "/home/rdamn"
+export const CodeDir = "/home/rdamn/code"

@@ -8,6 +8,8 @@ import directoryTree from "directory-tree"
 import type { FastifyInstance } from "fastify"
 import type { SocketStream } from "fastify-websocket"
 
+import { CodeDir } from "../constants"
+
 const ajvJtd: AjvJtd = new AjvJtd()
 
 type CreateFolderCrudClientToServerEventType = {
@@ -183,7 +185,7 @@ const crudHandler: (server: FastifyInstance, connection: SocketStream) => void =
 		}
 
 		const checkIsPathLegal: (path: string) => boolean = (path: string) => {
-			return path.startsWith("/home/rdamn/code") && !path.includes("../") && !path.includes("/root")
+			return path.startsWith(CodeDir) && !path.includes("../") && !path.includes("/root")
 		}
 
 		connection.socket.on("message", message => {

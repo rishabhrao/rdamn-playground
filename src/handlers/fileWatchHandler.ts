@@ -5,6 +5,8 @@ import { watch as chokidarWatch } from "chokidar"
 import type { FastifyInstance } from "fastify"
 import type { SocketStream } from "fastify-websocket"
 
+import { CodeDir } from "../constants"
+
 const ajvJtd: AjvJtd = new AjvJtd()
 
 type FileWatchServerToClientEventType = {
@@ -30,7 +32,7 @@ const fileWatchHandler: (server: FastifyInstance, connection: SocketStream) => v
 
 		const ignoredDirs = ["node_modules", ".git"]
 
-		chokidarWatch("/home/rdamn/code", {
+		chokidarWatch(CodeDir, {
 			ignoreInitial: true,
 			ignored: filePath => ignoredDirs.some(ignoredDir => filePath.includes(ignoredDir)),
 		}).on("all", (event, path) => {
