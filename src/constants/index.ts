@@ -11,6 +11,8 @@ type EnvConfigType = {
 	CommunicationPort: string
 	PreviewPort: string
 	PreviewPort2: string
+	SSL_CERT_FULLCHAIN: string
+	SSL_CERT_PRIVKEY: string
 }
 
 const EnvConfigSchema: JSONSchemaType<EnvConfigType> = {
@@ -23,6 +25,8 @@ const EnvConfigSchema: JSONSchemaType<EnvConfigType> = {
 		CommunicationPort: { type: "string", minLength: 1, default: `1234` },
 		PreviewPort: { type: "string", minLength: 1, default: `1337` },
 		PreviewPort2: { type: "string", minLength: 1, default: `1338` },
+		SSL_CERT_FULLCHAIN: { type: "string", minLength: 1, nullable: true, default: "" },
+		SSL_CERT_PRIVKEY: { type: "string", minLength: 1, nullable: true, default: "" },
 	},
 	required: ["HOSTNAME", "CommunicationPort", "PreviewPort", "PreviewPort2"],
 	additionalProperties: false,
@@ -37,8 +41,10 @@ const envConfig: EnvConfigType = envSchema({
 		CommunicationPort: process.env.CommunicationPort,
 		PreviewPort: process.env.PreviewPort,
 		PreviewPort2: process.env.PreviewPort2,
+		SSL_CERT_FULLCHAIN: process.env.SSL_CERT_FULLCHAIN,
+		SSL_CERT_PRIVKEY: process.env.SSL_CERT_PRIVKEY,
 	},
 	schema: EnvConfigSchema,
 })
 
-export const { NODE_ENV, SIGNED_GET_URL, SIGNED_PUT_URL, HOSTNAME, CommunicationPort, PreviewPort, PreviewPort2 } = envConfig
+export const { NODE_ENV, SIGNED_GET_URL, SIGNED_PUT_URL, HOSTNAME, CommunicationPort, PreviewPort, PreviewPort2, SSL_CERT_FULLCHAIN, SSL_CERT_PRIVKEY } = envConfig

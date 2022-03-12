@@ -1,13 +1,10 @@
 /* Copyright (c) rishabhrao (https://github.com/rishabhrao) */
 
-import { readFileSync } from "fs"
-import path from "path"
-
 import fastify, { FastifyInstance } from "fastify"
 import fastifyCors from "fastify-cors"
 import fastifyWebsocket from "fastify-websocket"
 
-import { CommunicationPort, NODE_ENV } from "./constants"
+import { CommunicationPort, NODE_ENV, SSL_CERT_FULLCHAIN, SSL_CERT_PRIVKEY } from "./constants"
 import crudHandler from "./handlers/crudHandler"
 import fileWatchHandler from "./handlers/fileWatchHandler"
 import terminalHandler from "./handlers/terminalHandler"
@@ -22,8 +19,8 @@ const serverOptions = {
 		NODE_ENV === "development"
 			? undefined
 			: {
-					cert: readFileSync(path.join(__dirname, "../SSL_CERT.pem")),
-					key: readFileSync(path.join(__dirname, "../SSL_KEY.pem")),
+					cert: Buffer.from(SSL_CERT_FULLCHAIN, "base64").toString("ascii"),
+					key: Buffer.from(SSL_CERT_PRIVKEY, "base64").toString("ascii"),
 			  },
 }
 
